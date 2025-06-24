@@ -1,0 +1,29 @@
+### Teste de saúde do serviço
+GET http://localhost:8080/health
+
+### Teste com CEP válido (São Paulo)
+GET http://localhost:8080/weather/01310900
+
+### Teste com CEP válido com hífen (São Paulo)
+GET http://localhost:8080/weather/01310-900
+
+### Teste com CEP válido (Rio de Janeiro)
+GET http://localhost:8080/weather/20040020
+
+### Teste com CEP válido (Brasília)
+GET http://localhost:8080/weather/70040901
+
+### Teste com CEP inválido (7 dígitos)
+GET http://localhost:8080/weather/1234567
+
+### Teste com CEP inválido (9 dígitos)
+GET http://localhost:8080/weather/123456789
+
+### Teste com CEP inválido (com letras)
+GET http://localhost:8080/weather/1234567a
+
+### Teste com CEP inexistente
+GET http://localhost:8080/weather/99999999
+
+### Teste com CEP vazio
+GET http://localhost:8080/weather/ 

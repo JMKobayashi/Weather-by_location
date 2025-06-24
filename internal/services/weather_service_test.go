@@ -16,6 +16,16 @@ func TestIsValidZipcode(t *testing.T) {
 			expected: true,
 		},
 		{
+			name:     "valid zipcode with hyphens",
+			zipcode:  "12345-678",
+			expected: true,
+		},
+		{
+			name:     "valid zipcode with spaces",
+			zipcode:  "12345 678",
+			expected: true,
+		},
+		{
 			name:     "invalid zipcode with letters",
 			zipcode:  "1234567a",
 			expected: false,
@@ -28,6 +38,16 @@ func TestIsValidZipcode(t *testing.T) {
 		{
 			name:     "invalid zipcode with more digits",
 			zipcode:  "123456789",
+			expected: false,
+		},
+		{
+			name:     "empty zipcode",
+			zipcode:  "",
+			expected: false,
+		},
+		{
+			name:     "zipcode with special characters",
+			zipcode:  "12345@678",
 			expected: false,
 		},
 	}
@@ -49,16 +69,31 @@ func TestGetWeatherByZipcode(t *testing.T) {
 		name        string
 		zipcode     string
 		expectError bool
+		errorMsg    string
 	}{
 		{
 			name:        "invalid zipcode format",
 			zipcode:     "1234567",
 			expectError: true,
+			errorMsg:    "invalid zipcode",
+		},
+		{
+			name:        "invalid zipcode with letters",
+			zipcode:     "1234567a",
+			expectError: true,
+			errorMsg:    "invalid zipcode",
+		},
+		{
+			name:        "empty zipcode",
+			zipcode:     "",
+			expectError: true,
+			errorMsg:    "invalid zipcode",
 		},
 		{
 			name:        "non-existent zipcode",
 			zipcode:     "99999999",
 			expectError: true,
+			errorMsg:    "can not find zipcode",
 		},
 	}
 
@@ -67,6 +102,11 @@ func TestGetWeatherByZipcode(t *testing.T) {
 			_, err := service.GetWeatherByZipcode(tt.zipcode)
 			if (err != nil) != tt.expectError {
 				t.Errorf("GetWeatherByZipcode(%s) error = %v; expectError %v", tt.zipcode, err, tt.expectError)
+				return
+			}
+
+			if tt.expectError && err != nil && err.Error() != tt.errorMsg {
+				t.Errorf("GetWeatherByZipcode(%s) error message = %v; want %v", tt.zipcode, err.Error(), tt.errorMsg)
 			}
 		})
 	}
