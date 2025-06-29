@@ -45,7 +45,6 @@ weather-service/
 ├── Dockerfile                     # ✅ Containerização
 ├── docker-compose.yml            # ✅ Orquestração local
 ├── cloudbuild.yaml               # ✅ Configuração Cloud Build
-├── deploy.sh                     # ✅ Script de deploy
 ├── env.example                   # ✅ Exemplo de variáveis
 ├── api.http                      # ✅ Exemplos de requisições
 ├── README.md                     # ✅ Documentação principal
@@ -88,7 +87,7 @@ weather-service/
 ## 🚀 Deploy no Google Cloud Run
 
 ### Configuração
-- [x] Script de deploy automatizado
+- [x] Deploy manual via gcloud
 - [x] Configuração Cloud Build
 - [x] Variáveis de ambiente
 - [x] Recursos otimizados
@@ -132,8 +131,19 @@ curl http://localhost:8080/weather/01310900
 
 ### No Cloud Run
 ```bash
-# 1. Deploy
-./deploy.sh SEU_PROJECT_ID SUA_WEATHER_API_KEY
+# 1. Deploy manual
+docker build -t gcr.io/SEU_PROJECT_ID/weather-service .
+docker push gcr.io/SEU_PROJECT_ID/weather-service
+gcloud run deploy weather-service \
+    --image gcr.io/SEU_PROJECT_ID/weather-service \
+    --platform managed \
+    --region us-central1 \
+    --allow-unauthenticated \
+    --port 8080 \
+    --memory 512Mi \
+    --cpu 1 \
+    --max-instances 10 \
+    --set-env-vars WEATHER_API_KEY=SUA_WEATHER_API_KEY
 
 # 2. Obter URL
 gcloud run services describe weather-service --format 'value(status.url)'
@@ -179,7 +189,18 @@ curl https://SEU_SERVICE_URL/weather/01310900
 
 3. **Executar Deploy**
    ```bash
-   ./deploy.sh SEU_PROJECT_ID SUA_WEATHER_API_KEY
+   docker build -t gcr.io/SEU_PROJECT_ID/weather-service .
+   docker push gcr.io/SEU_PROJECT_ID/weather-service
+   gcloud run deploy weather-service \
+       --image gcr.io/SEU_PROJECT_ID/weather-service \
+       --platform managed \
+       --region us-central1 \
+       --allow-unauthenticated \
+       --port 8080 \
+       --memory 512Mi \
+       --cpu 1 \
+       --max-instances 10 \
+       --set-env-vars WEATHER_API_KEY=SUA_WEATHER_API_KEY
    ```
 
 4. **Testar Serviço**

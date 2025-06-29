@@ -117,38 +117,104 @@ curl http://localhost:8080/weather/01310-900
 }
 ```
 
-## 🚀 Deploy no Google Cloud Run
+## 🌐 Serviço em Produção
 
-### Pré-requisitos:
-1. Google Cloud SDK instalado e configurado
-2. Projeto criado no Google Cloud Platform
-3. APIs habilitadas (Cloud Build, Cloud Run, Container Registry)
+O Weather Service está disponível em produção no Google Cloud Run:
 
-### Deploy automático:
+**URL Base:** https://weather-service-221594104588.us-central1.run.app/
+
+### Exemplos de Utilização em Produção:
+
+#### ✅ Endpoint de Saúde
 ```bash
-./deploy.sh <PROJECT_ID> <WEATHER_API_KEY>
+curl https://weather-service-221594104588.us-central1.run.app/health
 ```
 
-### Deploy manual:
+**Resposta:**
+```json
+{
+    "status": "ok"
+}
+```
+
+#### ✅ Consulta de Temperatura por CEP
+
+**São Paulo (01310900):**
 ```bash
-# Configurar projeto
-gcloud config set project <PROJECT_ID>
+curl https://weather-service-221594104588.us-central1.run.app/weather/01310900
+```
 
-# Build e push da imagem
-docker build -t gcr.io/<PROJECT_ID>/weather-service .
-docker push gcr.io/<PROJECT_ID>/weather-service
+**Rio de Janeiro (20040020):**
+```bash
+curl https://weather-service-221594104588.us-central1.run.app/weather/20040020
+```
 
-# Deploy no Cloud Run
-gcloud run deploy weather-service \
-    --image gcr.io/<PROJECT_ID>/weather-service \
-    --platform managed \
-    --region us-central1 \
-    --allow-unauthenticated \
-    --port 8080 \
-    --memory 512Mi \
-    --cpu 1 \
-    --max-instances 10 \
-    --set-env-vars WEATHER_API_KEY=<WEATHER_API_KEY>
+**Brasília (70040901):**
+```bash
+curl https://weather-service-221594104588.us-central1.run.app/weather/70040901
+```
+
+**Resposta de Sucesso:**
+```json
+{
+    "temp_C": 28.5,
+    "temp_F": 83.3,
+    "temp_K": 301.65
+}
+```
+
+#### ❌ Exemplos de Erro
+
+**CEP Inválido:**
+```bash
+curl https://weather-service-221594104588.us-central1.run.app/weather/123
+```
+
+**Resposta:**
+```json
+{
+    "error": "invalid zipcode"
+}
+```
+
+**CEP Inexistente:**
+```bash
+curl https://weather-service-221594104588.us-central1.run.app/weather/99999999
+```
+
+**Resposta:**
+```json
+{
+    "error": "can not find zipcode"
+}
+```
+
+### 🧪 Testando com JavaScript/Fetch
+
+```javascript
+// Teste do endpoint de saúde
+fetch('https://weather-service-221594104588.us-central1.run.app/health')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+// Teste do endpoint de weather
+fetch('https://weather-service-221594104588.us-central1.run.app/weather/01310900')
+  .then(response => response.json())
+  .then(data => console.log(data));
+```
+
+### 🐍 Testando com Python
+
+```python
+import requests
+
+# Teste do endpoint de saúde
+response = requests.get('https://weather-service-221594104588.us-central1.run.app/health')
+print(response.json())
+
+# Teste do endpoint de weather
+response = requests.get('https://weather-service-221594104588.us-central1.run.app/weather/01310900')
+print(response.json())
 ```
 
 ## 📊 APIs Utilizadas
@@ -186,26 +252,12 @@ weather-service/
 ├── Dockerfile               # Configuração Docker
 ├── docker-compose.yml       # Configuração Docker Compose
 ├── cloudbuild.yaml          # Configuração Cloud Build
-├── deploy.sh               # Script de deploy
 ├── api_test.go             # Testes de integração
 ├── api.http                # Exemplos de requisições HTTP
 ├── env.example             # Exemplo de variáveis de ambiente
 └── README.md               # Documentação principal
 ```
-
 ## 📚 Documentação Adicional
-
-Para informações mais detalhadas, consulte os seguintes arquivos:
-
-### 📋 [DEPLOY_INSTRUCTIONS.md](./DEPLOY_INSTRUCTIONS.md)
-Instruções detalhadas para deploy no Google Cloud Run, incluindo:
-- Configuração inicial do Google Cloud SDK
-- Habilitar APIs necessárias
-- Deploy automático e manual
-- Troubleshooting comum
-- Monitoramento e logs
-- Informações sobre custos e segurança
-
 ### 📊 [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md)
 Resumo técnico da implementação, incluindo:
 - Arquitetura do sistema

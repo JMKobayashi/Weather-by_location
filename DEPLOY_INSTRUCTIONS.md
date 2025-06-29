@@ -37,18 +37,9 @@ cp env.example .env
 echo "WEATHER_API_KEY=sua_chave_aqui" > .env
 ```
 
-## 🚀 Deploy Automático
+## 🚀 Deploy
 
-### Opção 1: Usando o script de deploy
-```bash
-# Tornar o script executável (se necessário)
-chmod +x deploy.sh
-
-# Executar o deploy
-./deploy.sh SEU_PROJECT_ID SUA_WEATHER_API_KEY
-```
-
-### Opção 2: Deploy manual
+### Deploy manual
 ```bash
 # 1. Build da imagem Docker
 docker build -t gcr.io/SEU_PROJECT_ID/weather-service .
@@ -160,11 +151,6 @@ O Cloud Run automaticamente:
 Para atualizar o serviço:
 ```bash
 # Rebuild e redeploy
-./deploy.sh SEU_PROJECT_ID SUA_WEATHER_API_KEY
-```
-
-Ou manualmente:
-```bash
 docker build -t gcr.io/SEU_PROJECT_ID/weather-service .
 docker push gcr.io/SEU_PROJECT_ID/weather-service
 gcloud run deploy weather-service --image gcr.io/SEU_PROJECT_ID/weather-service

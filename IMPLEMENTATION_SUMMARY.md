@@ -20,7 +20,6 @@ weather-service/
 │   └── services/weather_service.go # Lógica de negócio
 ├── Dockerfile                     # Containerização
 ├── docker-compose.yml            # Orquestração local
-├── deploy.sh                     # Script de deploy
 └── README.md                     # Documentação
 ```
 
@@ -103,8 +102,8 @@ weather-service/
 
 ## 🚀 Deploy no Cloud Run
 
-### Configuração Automatizada
-- ✅ Script de deploy (`deploy.sh`)
+### Configuração Manual
+- ✅ Deploy via gcloud CLI
 - ✅ Configuração Cloud Build (`cloudbuild.yaml`)
 - ✅ Deploy com variáveis de ambiente
 - ✅ Configuração de recursos otimizada
@@ -179,7 +178,21 @@ weather-service/
 
 1. **Obter chave da WeatherAPI** em https://www.weatherapi.com/
 2. **Configurar projeto no Google Cloud**
-3. **Executar deploy:** `./deploy.sh PROJECT_ID WEATHER_API_KEY`
+3. **Executar deploy manual:**
+   ```bash
+   docker build -t gcr.io/PROJECT_ID/weather-service .
+   docker push gcr.io/PROJECT_ID/weather-service
+   gcloud run deploy weather-service \
+       --image gcr.io/PROJECT_ID/weather-service \
+       --platform managed \
+       --region us-central1 \
+       --allow-unauthenticated \
+       --port 8080 \
+       --memory 512Mi \
+       --cpu 1 \
+       --max-instances 10 \
+       --set-env-vars WEATHER_API_KEY=SUA_API_KEY
+   ```
 4. **Testar endpoints** com CEPs reais
 5. **Monitorar logs** e métricas
 

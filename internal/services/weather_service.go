@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
 
@@ -43,7 +44,7 @@ func (s *WeatherService) GetWeatherByZipcode(zipcode string) (*models.WeatherRes
 	}
 
 	// Buscar temperatura pela localização
-	tempC, err := s.getTemperatureByLocation(location.Localidade, location.Uf)
+	tempC, err := s.getTemperatureByLocation(location.Localidade)
 	if err != nil {
 		log.Printf("Erro ao buscar temperatura para a localidade %s (CEP %s): %v", location.Localidade, zipcode, err)
 		return nil, err
@@ -72,6 +73,13 @@ func (s *WeatherService) getLocationByZipcode(zipcode string) (*models.ViaCEPRes
 
 	if resp.StatusCode != http.StatusOK {
 		log.Printf("ViaCEP retornou status %d para o CEP %s", resp.StatusCode, zipcode)
+		// Log do corpo da resposta para debug
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		log.Printf("Resposta do ViaCEP: %s", string(bodyBytes))
+
+		if resp.StatusCode == http.StatusBadGateway || resp.StatusCode == http.StatusServiceUnavailable {
+			return nil, fmt.Errorf("viacep service temporarily unavailable")
+		}
 		return nil, fmt.Errorf("zipcode not found")
 	}
 
@@ -90,9 +98,10 @@ func (s *WeatherService) getLocationByZipcode(zipcode string) (*models.ViaCEPRes
 	return &location, nil
 }
 
-func (s *WeatherService) getTemperatureByLocation(location, uf string) (float64, error) {
-	// Exemplo: "São Paulo,SP"
-	url := fmt.Sprintf("http://api.weatherapi.com/v1/current.json?key=%s&q=%s&aqi=no", s.weatherAPIKey, location)
+func (s *WeatherService) getTemperatureByLocation(location string) (float64, error) {
+	// Usar encoding URL correto para caracteres especiais
+	encodedLocation := url.QueryEscape(location)
+	url := fmt.Sprintf("http://api.weatherapi.com/v1/current.json?key=%s&q=%s&aqi=no", s.weatherAPIKey, encodedLocation)
 	log.Printf("Consultando WeatherAPI: %s", url)
 
 	resp, err := http.Get(url)
